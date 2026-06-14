@@ -114,6 +114,49 @@
   color: #cbd5e1;
 }
 
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.review-header h3 {
+  margin: 0;
+  flex: 1;
+}
+
+.review-date {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  margin-left: 12px;
+}
+
+.error-message {
+  color: #f87171;
+  padding: 20px;
+  background: #7f1d1d;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.back-btn {
+  display: inline-block;
+  margin-top: 20px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.back-btn:hover {
+  background: #1d4ed8;
+}
+
 .footer {
   margin-top: 40px;
 }

@@ -16,22 +16,29 @@ function MovieSection({ title, data = [] }) {
                 {data.map((item, index) => {
                     const isObj = typeof item === 'object' && item !== null;
                     const titleText = isObj ? item.title || item.name : (item?.trim && item.trim()) || `Movie ${index + 1}`;
-                    const movieLink = isObj && item.id ? `/movie/${item.id}` : `/movie/${encodeURIComponent(titleText)}`;
+                    const detailsLink = isObj && item.id ? `/movie/${item.id}` : `/movie/${encodeURIComponent(titleText)}`;
+                    const reviewsLink = isObj && item.id ? `/reviews/${item.id}` : `/reviews/${encodeURIComponent(titleText)}`;
                     const poster = isObj && item.poster_path ? `${IMAGE_BASE}${item.poster_path}` : null;
 
                     return (
-                        <Link className="movie-card" to={movieLink} key={item.id || index}>
-                            {poster ? (
-                                <img src={poster} alt={titleText} />
-                            ) : (
-                                <div className="poster-placeholder">{String(titleText).charAt(0)}</div>
-                            )}
+                        <div className="movie-card" key={item.id || index}>
+                            <Link className="movie-card-link" to={detailsLink}>
+                                {poster ? (
+                                    <img src={poster} alt={titleText} />
+                                ) : (
+                                    <div className="poster-placeholder">{String(titleText).charAt(0)}</div>
+                                )}
 
-                            <div className="meta">
-                                <h4>{titleText}</h4>
-                                <p>{isObj ? (item.release_date || item.first_air_date || '') : ''}</p>
-                            </div>
-                        </Link>
+                                <div className="meta">
+                                    <h4>{titleText}</h4>
+                                    <p>{isObj ? (item.release_date || item.first_air_date || '') : ''}</p>
+                                </div>
+                            </Link>
+
+                            <Link className="review-button" to={reviewsLink}>
+                                View Reviews
+                            </Link>
+                        </div>
                     );
                 })}
             </div>

@@ -38,6 +38,22 @@ export async function searchMovies(query, page = 1) {
     return data.results || [];
 }
 
+export async function fetchMovieDetails(movieId) {
+    const data = await request(`/movie/${movieId}`);
+    return data;
+}
+
+export async function fetchMovieReviews(movieId, page = 1) {
+    const data = await request(`/movie/${movieId}/reviews`, { page });
+    return {
+        results: data.results || [],
+        totalResults: data.total_results || 0,
+        averageRating: data.results?.length > 0 
+            ? (data.results.reduce((sum, review) => sum + (review.author_details?.rating || 0), 0) / data.results.length).toFixed(1)
+            : 'N/A'
+    };
+}
+
 export const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 
 export default {
@@ -46,5 +62,7 @@ export default {
     fetchTopRated,
     fetchUpcoming,
     searchMovies,
+    fetchMovieDetails,
+    fetchMovieReviews,
     IMAGE_BASE,
 };
