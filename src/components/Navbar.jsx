@@ -14,16 +14,18 @@ function Navbar({ menuOpen, setMenuOpen }) {
                             Home
                         </NavLink>
                     </li>
-                    <li>
+                     <li>
                         <NavLink to="/favorites" className={({ isActive }) => isActive ? "active" : ""}>
                             Favorites
                         </NavLink>
                     </li>
                     <li>
-                        <a href="#movies">Movies</a>
+                        <NavLink to="/reviews" className={({ isActive }) => isActive ? "active" : ""}>
+                            Reviews
+                        </NavLink>
                     </li>
                     <li>
-                        <a href="#reviews">Reviews</a>
+                        <a href="#movies">Movies</a>
                     </li>
                 </ul>
 
@@ -69,19 +71,19 @@ function Navbar({ menuOpen, setMenuOpen }) {
                             </NavLink>
                         </li>
                         <li>
-                            <a href="#movies" onClick={() => setMenuOpen(false)}>
-                                Movies
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#reviews" onClick={() => setMenuOpen(false)}>
+                            <NavLink to="/reviews" onClick={() => setMenuOpen(false)}>
                                 Reviews
-                            </a>
+                            </NavLink>
                         </li>
                         <li>
                             <NavLink to="/favorites" onClick={() => setMenuOpen(false)}>
                                 Favorites
                             </NavLink>
+                        </li>
+                        <li>
+                            <a href="#movies" onClick={() => setMenuOpen(false)}>
+                                Movies
+                            </a>
                         </li>
                     </ul>
                 </div>
