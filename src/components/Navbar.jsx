@@ -1,4 +1,5 @@
 import React from "react";
+import { NavLink } from "react-router-dom";
 
 function Navbar({ menuOpen, setMenuOpen }) {
     return (
@@ -8,10 +9,22 @@ function Navbar({ menuOpen, setMenuOpen }) {
                 <h2 className="logo">🎬 CineTrack</h2>
 
                 <ul className="nav-links">
-                    <li>Home</li>
-                    <li>Favorites</li>
-                    <li>Movies</li>
-                    <li>Reviews</li>
+                    <li>
+                        <NavLink to="/" className={({ isActive }) => isActive ? "active" : ""}>
+                            Home
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink to="/favorites" className={({ isActive }) => isActive ? "active" : ""}>
+                            Favorites
+                        </NavLink>
+                    </li>
+                    <li>
+                        <a href="#movies">Movies</a>
+                    </li>
+                    <li>
+                        <a href="#reviews">Reviews</a>
+                    </li>
                 </ul>
 
                 <input
@@ -50,10 +63,26 @@ function Navbar({ menuOpen, setMenuOpen }) {
 
                 <div className="offcanvas-body">
                     <ul className="offcanvas-menu">
-                        <li>Home</li>
-                        <li>Movies</li>
-                        <li>Reviews</li>
-                        <li>Favorites</li>
+                        <li>
+                            <NavLink to="/" onClick={() => setMenuOpen(false)}>
+                                Home
+                            </NavLink>
+                        </li>
+                        <li>
+                            <a href="#movies" onClick={() => setMenuOpen(false)}>
+                                Movies
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#reviews" onClick={() => setMenuOpen(false)}>
+                                Reviews
+                            </a>
+                        </li>
+                        <li>
+                            <NavLink to="/favorites" onClick={() => setMenuOpen(false)}>
+                                Favorites
+                            </NavLink>
+                        </li>
                     </ul>
                 </div>
             </div>
