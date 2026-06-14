@@ -1,66 +1,100 @@
-import { useState } from "react";
+﻿import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { FaPlay, FaStar, FaPlus, FaShareAlt } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { fetchMovieDetails, IMAGE_BASE } from "../services/tmdb";
+import { addFavorite, removeFavorite, isFavorite } from "../services/favorites";
 import "../styles/MovieDetails.css";
-
-const cast = [
-  {
-    name: "Timothée Chalamet",
-    role: "Paul Atreides",
-    image: "https://via.placeholder.com/150",
-  },
-  {
-    name: "Zendaya",
-    role: "Chani",
-    image: "https://via.placeholder.com/150",
-  },
-  {
-    name: "Rebecca Ferguson",
-    role: "Lady Jessica",
-    image: "https://via.placeholder.com/150",
-  },
-  {
-    name: "Austin Butler",
-    role: "Feyd-Rautha",
-    image: "https://via.placeholder.com/150",
-  },
-  {
-    name: "Javier Bardem",
-    role: "Stilgar",
-    image: "https://via.placeholder.com/150",
-  },
-  {
-    name: "Josh Brolin",
-    role: "Gurney Halleck",
-    image: "https://via.placeholder.com/150",
-  },
-];
-
-const recommendations = [
-  "Dune",
-  "Interstellar",
-  "Blade Runner 2049",
-  "Arrival",
-  "The Martian",
-];
 
 export default function MovieDetails() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [movie, setMovie] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [favorite, setFavorite] = useState(false);
   const { movieId } = useParams();
-  const movieTitle = movieId ? decodeURIComponent(movieId) : "Dune: Part Two";
+
+  useEffect(() => {
+    if (!movieId) {
+      setError("No movie selected");
+      setLoading(false);
+      return;
+    }
+
+    const loadMovie = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const details = await fetchMovieDetails(movieId);
+        setMovie(details);
+        setFavorite(isFavorite(details.id));
+      } catch (err) {
+        console.error("Failed to load movie details", err);
+        setError("Unable to load movie details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadMovie();
+  }, [movieId]);
+
+  const handleFavoriteToggle = () => {
+    if (!movie) return;
+    if (favorite) {
+      removeFavorite(movie.id);
+      setFavorite(false);
+    } else {
+      addFavorite(movie);
+      setFavorite(true);
+    }
+  };
+
+  const formatRuntime = (runtime) => {
+    if (!runtime) return "";
+    const hours = Math.floor(runtime / 60);
+    const minutes = runtime % 60;
+    return `${hours}h ${minutes}m`;
+  };
+
+  if (loading) {
+    return (
+      <div className="movie-details-page">
+        <Navbar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+        <main style={{ padding: '40px', color: '#fff' }}>
+          <p>Loading movie details…</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !movie) {
+    return (
+      <div className="movie-details-page">
+        <Navbar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+        <main style={{ padding: '40px', color: '#fff' }}>
+          <p>{error || 'Movie not found'}</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="movie-details-page">
       <Navbar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
-      {/* Hero Section */}
       <section className="heroS">
         <div className="poster">
           <img
-            src="https://image.tmdb.org/t/p/w500/8b8R8l88Qje9dn9OE8PY05Nxl1X.jpg"
-            alt="Dune"
+            src={
+              movie.poster_path
+                ? `${IMAGE_BASE}${movie.poster_path}`
+                : "https://via.placeholder.com/500x750?text=No+Image"
+            }
+            alt={movie.title}
           />
 
           <div className="play-btn">
@@ -69,32 +103,29 @@ export default function MovieDetails() {
         </div>
 
         <div className="movie-info">
-          <h1>Dune: Part Two</h1>
+          <h1>{movie.title}</h1>
 
           <div className="meta">
-            <span>2024</span>
-            <span>2h 46m</span>
-            <span>PG-13</span>
+            <span>{movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A'}</span>
+            <span>{formatRuntime(movie.runtime)}</span>
+            <span>{movie.adult ? '18+' : 'PG-13'}</span>
           </div>
 
           <div className="genres">
-            <span>Adventure</span>
-            <span>Drama</span>
-            <span>Sci-Fi</span>
+            {movie.genres?.map((genre) => (
+              <span key={genre.id}>{genre.name}</span>
+            ))}
           </div>
 
-          <p>
-            Paul Atreides unites with Chani and the Fremen while seeking revenge
-            against the conspirators who destroyed his family.
-          </p>
+          <p>{movie.overview || 'No description available.'}</p>
 
           <div className="action-buttons">
             <button className="primary">
               <FaPlay /> Watch Trailer
             </button>
 
-            <button>
-              <FaPlus /> Add to Favorites
+            <button onClick={handleFavoriteToggle}>
+              <FaPlus /> {favorite ? 'Remove from Favorites' : 'Add to Favorites'}
             </button>
 
             <button>
@@ -105,10 +136,10 @@ export default function MovieDetails() {
 
         <div className="rating-card card">
           <h2>
-            <FaStar /> 8.5<span>/10</span>
+            <FaStar /> {movie.vote_average?.toFixed(1) || 'N/A'}<span>/10</span>
           </h2>
 
-          <p>125K Ratings</p>
+          <p>{movie.vote_count?.toLocaleString() || '0'} Ratings</p>
 
           <div className="streaming">
             <h4>Available to Watch</h4>
@@ -122,40 +153,38 @@ export default function MovieDetails() {
         </div>
       </section>
 
-      {/* Info Row */}
       <section className="info-row">
         <div className="info-card">
           <h5>Release Date</h5>
-          <p>March 1, 2024</p>
+          <p>{movie.release_date || 'N/A'}</p>
         </div>
 
         <div className="info-card">
-          <h5>Director</h5>
-          <p>Denis Villeneuve</p>
+          <h5>Status</h5>
+          <p>{movie.status || 'N/A'}</p>
         </div>
 
         <div className="info-card">
-          <h5>Writers</h5>
-          <p>Denis Villeneuve, Jon Spaihts</p>
+          <h5>Language</h5>
+          <p>{movie.original_language?.toUpperCase() || 'N/A'}</p>
         </div>
 
         <div className="info-card">
-          <h5>Stars</h5>
-          <p>Timothée Chalamet, Zendaya</p>
+          <h5>Runtime</h5>
+          <p>{formatRuntime(movie.runtime)}</p>
         </div>
 
         <div className="info-card">
           <h5>Budget</h5>
-          <p>$190 Million</p>
+          <p>{movie.budget ? `$${movie.budget.toLocaleString()}` : 'N/A'}</p>
         </div>
 
         <div className="info-card">
-          <h5>Box Office</h5>
-          <p>$714.4 Million</p>
+          <h5>Revenue</h5>
+          <p>{movie.revenue ? `$${movie.revenue.toLocaleString()}` : 'N/A'}</p>
         </div>
       </section>
 
-      {/* Tabs */}
       <div className="tabs">
         <button className="active">Overview</button>
         <button>Cast</button>
@@ -164,28 +193,24 @@ export default function MovieDetails() {
         <button>Videos</button>
       </div>
 
-      {/* Content */}
       <section className="content-grid">
         <div className="story card">
           <h3>Storyline</h3>
 
-          <p>
-            Paul Atreides unites with Chani and the Fremen while seeking revenge
-            against the conspirators who destroyed his family.
-          </p>
+          <p>{movie.overview || 'No storyline available.'}</p>
 
           <div className="details-grid">
             <div>
-              <strong>Status:</strong> Released
+              <strong>Status:</strong> {movie.status || 'N/A'}
             </div>
             <div>
-              <strong>Language:</strong> English
+              <strong>Language:</strong> {movie.original_language?.toUpperCase() || 'N/A'}
             </div>
             <div>
-              <strong>Country:</strong> USA, Canada
+              <strong>Country:</strong> {movie.production_countries?.map((country) => country.name).join(', ') || 'N/A'}
             </div>
             <div>
-              <strong>Distributor:</strong> Warner Bros.
+              <strong>Production:</strong> {movie.production_companies?.map((company) => company.name).join(', ') || 'N/A'}
             </div>
           </div>
         </div>
@@ -194,61 +219,13 @@ export default function MovieDetails() {
           <h3>Official Trailer</h3>
 
           <img
-            src="https://image.tmdb.org/t/p/w780/8b8R8l88Qje9dn9OE8PY05Nxl1X.jpg"
-            alt=""
+            src={
+              movie.backdrop_path
+                ? `${IMAGE_BASE}${movie.backdrop_path}`
+                : "https://via.placeholder.com/780x400?text=Trailer+Unavailable"
+            }
+            alt="Trailer"
           />
-        </div>
-      </section>
-
-      {/* Bottom Section */}
-      <section className="bottom-grid">
-        <div className="cast-section card">
-          <h3>Top Cast</h3>
-
-          <div className="cast-grid">
-            {cast.map((actor) => (
-              <div className="cast-card" key={actor.name}>
-                <img src={actor.image} alt="" />
-                <h4>{actor.name}</h4>
-                <span>{actor.role}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="reviews card">
-          <h3>Top Reviews</h3>
-
-          <div className="review">
-            <h4>Alex Morgan</h4>
-            <p>
-              A breathtaking masterpiece with incredible visuals and stunning
-              world-building.
-            </p>
-          </div>
-
-          <div className="review">
-            <h4>Sarah Chen</h4>
-            <p>
-              Epic in every sense. Performances and score are phenomenal.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="recommendations card">
-        <h3>More Like This</h3>
-
-        <div className="movie-list">
-          {recommendations.map((movie) => (
-            <div className="recommend-card" key={movie}>
-              <img
-                src="https://via.placeholder.com/220x300"
-                alt={movie}
-              />
-              <p>{movie}</p>
-            </div>
-          ))}
         </div>
       </section>
 
