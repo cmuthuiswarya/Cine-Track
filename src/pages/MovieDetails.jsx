@@ -56,7 +56,7 @@ export default function MovieDetails() {
       <Navbar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
       {/* Hero Section */}
-      <section className="hero">
+      <section className="heroS">
         <div className="poster">
           <img
             src="https://image.tmdb.org/t/p/w500/8b8R8l88Qje9dn9OE8PY05Nxl1X.jpg"

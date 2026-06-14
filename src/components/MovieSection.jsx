@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { IMAGE_BASE } from "../services/tmdb";
 
-function MovieSection({ title, data }) {
+function MovieSection({ title, data = [] }) {
     return (
         <section className="section">
             <div className="section-header">
@@ -10,18 +11,26 @@ function MovieSection({ title, data }) {
             </div>
 
             <div className="card-container">
+                {data.length === 0 && <p style={{ color: 'gray' }}>No items to show</p>}
+
                 {data.map((item, index) => {
-                    const displayTitle = item?.trim() || `Movie ${index + 1}`;
-                    const movieLink = `/movie/${encodeURIComponent(displayTitle)}`;
+                    const isObj = typeof item === 'object' && item !== null;
+                    const titleText = isObj ? item.title || item.name : (item?.trim && item.trim()) || `Movie ${index + 1}`;
+                    const movieLink = isObj && item.id ? `/movie/${item.id}` : `/movie/${encodeURIComponent(titleText)}`;
+                    const poster = isObj && item.poster_path ? `${IMAGE_BASE}${item.poster_path}` : null;
 
                     return (
-                        <Link className="movie-card" to={movieLink} key={index}>
-                            <div className="poster-placeholder">
-                                {displayTitle.charAt(0)}
-                            </div>
+                        <Link className="movie-card" to={movieLink} key={item.id || index}>
+                            {poster ? (
+                                <img src={poster} alt={titleText} />
+                            ) : (
+                                <div className="poster-placeholder">{String(titleText).charAt(0)}</div>
+                            )}
 
-                            <h4>{displayTitle}</h4>
-                            <p></p>
+                            <div className="meta">
+                                <h4>{titleText}</h4>
+                                <p>{isObj ? (item.release_date || item.first_air_date || '') : ''}</p>
+                            </div>
                         </Link>
                     );
                 })}

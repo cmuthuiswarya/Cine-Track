@@ -1,7 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import heroImage from "../assets/hero.png";
 
-function Hero() {
+function Hero({ onSearch }) {
+    const [query, setQuery] = useState("");
+
+    const handleSearch = () => {
+        if (onSearch) onSearch(query.trim());
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") handleSearch();
+    };
+
     return (
         <section className="hero">
             <div>
@@ -18,10 +28,13 @@ function Hero() {
                 <div className="search-box">
                     <input
                         type="text"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        onKeyDown={handleKeyDown}
                         placeholder="🔍︎  Search movies by title..."
                     />
 
-                    <button>Search</button>
+                    <button onClick={handleSearch}>Search</button>
                 </div>
             </div>
 
