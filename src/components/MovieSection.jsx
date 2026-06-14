@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 function MovieSection({ title, data }) {
     return (
@@ -9,16 +10,21 @@ function MovieSection({ title, data }) {
             </div>
 
             <div className="card-container">
-                {data.map((item, index) => (
-                    <div className="movie-card" key={index}>
-                        <div className="poster-placeholder">
-                            {item.charAt(0)}
-                        </div>
+                {data.map((item, index) => {
+                    const displayTitle = item?.trim() || `Movie ${index + 1}`;
+                    const movieLink = `/movie/${encodeURIComponent(displayTitle)}`;
 
-                        <h4>{item}</h4>
-                        <p></p>
-                    </div>
-                ))}
+                    return (
+                        <Link className="movie-card" to={movieLink} key={index}>
+                            <div className="poster-placeholder">
+                                {displayTitle.charAt(0)}
+                            </div>
+
+                            <h4>{displayTitle}</h4>
+                            <p></p>
+                        </Link>
+                    );
+                })}
             </div>
         </section>
     );

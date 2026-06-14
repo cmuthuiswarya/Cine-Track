@@ -2,12 +2,14 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import Favorites from './pages/Favorites.jsx'
 import Reviews from './pages/Reviews.jsx'
+import MovieDetails from './pages/MovieDetails.jsx'
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/movie/:movieId" element={<MovieDetails />} />
         <Route path="/reviews" element={<Reviews />} />
         <Route path="/favorites" element={<Favorites />} />
         <Route path="*" element={<Navigate to="/" replace />} />
